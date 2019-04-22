@@ -44,8 +44,8 @@ def welcome():
         f"/api/precipitation<br/>"
         f"/api/stations<br/>"
         f"/api/temperature<br/>"
-        f"/api/<start></br>"
-        f"/api/<start>/<end></br>"
+        f"/api/start</br>"
+        f"/api/start/end</br>"
     )
 
 #################################################
@@ -112,28 +112,25 @@ def temperature():
 # Dates TMIN, TAVG, TMAX
 #################################################
 
-# Defines the start date function
-def start_data(start_date):
-    return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start_date).all()
-# Defines the start/end function
-def end_data(start_date,end_date):
-    return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start_date).\
-        filter(Measurement.date <= end_date).all()
 
+@app.route("/api/start")
+def start_trip(start="2017-08-11"):
+#query trip data
+    trip_data = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start).all()
+    trip= {"START DATE":start, "TMIN":trip_data[0][0], "TAVG":trip_data[0][1], "TMAX":trip_data[0][2]}
+    return jsonify(trip)
 
-@app.route("/api/dates/")
-@app.route("/api<start>/")
-def start_temp(start='2017-08-11'):
-    start_list = start_data(start)
-    start_dict = {"START DATE":start, "TMIN":start_list[0][0], "TAVG":start_list[0][1], "TMAX":start_list[0][2]}
-    return jsonify(start_dict)
-@app.route("/api/<start>/<end>")
-def end_temp(start,end):
-    end_list = end_data(start,end)
-    end_dict = {"START DATE":start, "END DATE":end, "TMIN":end_list[0][0], "TAVG":end_list[0][1], "TMAX":end_list[0][2]}
-    return jsonify(end_dict)
+@app.route("/api/start/end")
+def startend_trip(start="2017-08-11",end="2017-08-23"):
+ 
+ # query trip data  
+    trip_data = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
+    trip= {"START DATE":start, "END DATE": end, "TMIN":trip_data[0][0], "TAVG":trip_data[0][1], "TMAX":trip_data[0][2]}
+    return jsonify(trip)    
+
 
 if __name__ == '__main__':
     app.run(debug=True)
