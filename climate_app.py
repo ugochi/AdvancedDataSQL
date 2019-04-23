@@ -44,8 +44,8 @@ def welcome():
         f"/api/precipitation<br/>"
         f"/api/stations<br/>"
         f"/api/temperature<br/>"
-        f"/api/start</br>"
-        f"/api/start/end</br>"
+        f"/api/< start ></br>"
+        f"/api/< start >/< end ></br>"
     )
 
 #################################################
@@ -113,16 +113,16 @@ def temperature():
 #################################################
 
 
-@app.route("/api/start")
-def start_trip(start="2017-08-11"):
+@app.route("/api/<start>")
+def start_trip(start):
 #query trip data
     trip_data = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start).all()
     trip= {"START DATE":start, "TMIN":trip_data[0][0], "TAVG":trip_data[0][1], "TMAX":trip_data[0][2]}
     return jsonify(trip)
 
-@app.route("/api/start/end")
-def startend_trip(start="2017-08-11",end="2017-08-23"):
+@app.route("/api/<start>/<end>")
+def startend_trip(start,end):
  
  # query trip data  
     trip_data = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
